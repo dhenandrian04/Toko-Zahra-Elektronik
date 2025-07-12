@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toko Online Sederhana</title>
+    <!-- Google Fonts: Poppins for a modern look -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- PWA Manifest Link -->
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #eef2f6; /* Light blue-grey background */
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* Ensure footer stays at the bottom */
+        }
+
+        /* Header Styling */
+        header {
+            background-color: #2c3e50; /* Dark blue-grey */
+            color: white;
+            padding: 1em 0;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 2.5em;
+        }
+
+        /* Navigation Bar */
+        nav {
+            background-color: #34495e; /* Slightly lighter dark blue */
+            padding: 0.8em 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap; /* Allow wrapping on small screens */
+        }
+
+        nav ul li {
+            margin: 0 15px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: block; /* Make the whole area clickable */
+        }
+
+        nav ul li a:hover,
+        nav ul li a.active {
+            background-color: #1abc9c; /* Teal for active/hover */
+            transform: translateY(-2px);
+        }
+
+        /* Main Content Area */
+        main {
+            flex-grow: 1; /* Allows main content to take available space */
+            padding: 30px 20px;
+            max-width: 1200px;
+            margin: 20px auto;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Section Styling */
+        .page-section {
+            display: none; /* Hidden by default, shown by JS */
+            padding: 20px 0;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            font-weight: 600;
+            font-size: 1.8em;
+        }
+
+        /* Product Grid (Home Page) */
+        #product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .product-card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Push buttons to bottom */
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-card img {
+            max-width: 100%;
+            height: 200px; /* Fixed height for consistent card size */
+            object-fit: cover; /* Cover the area, crop if necessary */
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .product-card h3 {
+            margin-top: 0;
+            color: #34495e;
+            font-size: 1.4em;
+            min-height: 2.8em; /* Ensure consistent height for names */
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .product-card .description {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 15px;
+            min-height: 3.6em; /* Consistent height for description */
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .product-card .price {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #2ecc71;
+            margin-bottom: 15px;
+        }
+
+        .product-card .stock {
+            font-size: 0.9em;
+            color: #777;
+            margin-bottom: 10px;
+        }
+
+        .product-card .add-to-cart-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: auto; /* Push to bottom */
+            flex-wrap: wrap; /* Allow wrapping on small screens */
+        }
+
+        .product-card input[type="number"] {
+            width: 80px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+            margin-right: 10px;
+            margin-bottom: 10px; /* For small screens */
+        }
+
+        .product-card button {
+            background-color: #3498db; /* Blue for add to cart */
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin-bottom: 10px; /* For small screens */
+        }
+
+        .product-card button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .product-card button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        /* Form Styling (Inventory Page) */
+        #inventory-page form div {
+            margin-bottom: 20px;
+        }
+
+        #inventory-page label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        #inventory-page input[type="text"],
+        #inventory-page input[type="number"],
+        #inventory-page input[type="file"] { /* Changed to file input */
+            width: calc(100% - 24px); /* Account for padding */
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1em;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        #inventory-page textarea { /* Added textarea for description */
+            width: calc(100% - 24px);
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1em;
+            min-height: 80px;
+            resize: vertical;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        #inventory-page input:focus,
+        #inventory-page textarea:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+
+        #inventory-page #image-preview { /* New style for image preview */
+            max-width: 100px;
+            max-height: 70px;
+            margin-top: 10px;
+            border-radius: 5px;
+            display: block;
+            border: 1px solid #ccc;
+        }
+
+        #inventory-page button[type="submit"] {
+            background-color: #2ecc71; /* Green for add/update */
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            width: 100%;
+        }
+
+        #inventory-page button[type="submit"]:hover {
+            background-color: #27ae60;
+            transform: translateY(-2px);
+        }
+
+        /* Table Styling (General for Inventory & Cart) */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px; /* Ensures table doesn't get too squished */
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: #f8f8f8;
+            font-weight: 600;
+            color: #555;
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #fdfdfd;
+        }
+
+        tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* Action Buttons in Table */
+        .aksi-tombol button {
+            background-color: #e74c3c; /* Red for delete */
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 500;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin-right: 5px; /* Space between buttons if multiple */
+        }
+
+        .aksi-tombol button:hover {
+            background-color: #c0392b;
+            transform: translateY(-1px);
+        }
+
+        /* Cart Page Specifics */
+        #cart-total-section {
+            text-align: right;
+            margin-top: 20px;
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #2c3e50;
+            border-top: 2px solid #e0e0e0;
+            padding-top: 15px;
+        }
+
+        #proceed-to-payment-button {
+            background-color: #f39c12; /* Orange for checkout */
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: 700;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        #proceed-to-payment-button:hover {
+            background-color: #e67e22;
+            transform: translateY(-3px);
+        }
+
+        #proceed-to-payment-button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        /* Payment Page Specifics */
+        #payment-page .order-summary {
+            margin-bottom: 30px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        #payment-page .order-summary h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #34495e;
+            font-size: 1.5em;
+        }
+
+        #payment-page .order-summary ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #payment-page .order-summary ul li {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+        }
+
+        #payment-page .order-summary ul li:last-child {
+            border-bottom: none;
+        }
+
+        #payment-page .order-total-display {
+            text-align: right;
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        #payment-page .payment-method-selection {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        #payment-page .payment-method-selection h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #34495e;
+            font-size: 1.5em;
+        }
+
+        #payment-page .payment-method-selection div {
+            margin-bottom: 10px;
+        }
+
+        #payment-page .payment-method-selection label {
+            font-size: 1.1em;
+            cursor: pointer;
+        }
+
+        #payment-page .payment-method-selection input[type="radio"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+
+        #pay-now-button {
+            background-color: #2ecc71; /* Green for pay now */
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: 700;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            width: 100%;
+            margin-top: 30px;
+        }
+
+        #pay-now-button:hover {
+            background-color: #27ae60;
+            transform: translateY(-3px);
+        }
+
+        #print-receipt-button {
+            background-color: #3498db; /* Blue for print */
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        #print-receipt-button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+
+        /* Checkout Success Page */
+        #checkout-success-page {
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        #checkout-success-page h2 {
+            color: #2ecc71; /* Green for success */
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            border-bottom: none;
+        }
+
+        #checkout-success-page p {
+            font-size: 1.2em;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        #checkout-success-page button {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        #checkout-success-page button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        /* Empty List/Cart Messages */
+        .empty-message {
+            text-align: center;
+            color: #777;
+            font-style: italic;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        /* Footer Styling */
+        footer {
+            text-align: center;
+            padding: 1.5em 0;
+            background-color: #2c3e50;
+            color: white;
+            margin-top: auto; /* Pushes footer to the bottom */
+            box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            nav ul li {
+                margin: 5px 10px;
+            }
+            header h1 {
+                font-size: 2em;
+            }
+            h2 {
+                font-size: 1.5em;
+            }
+            .product-card input[type="number"] {
+                width: 60px;
+            }
+            .product-card button {
+                padding: 8px 12px;
+                font-size: 0.9em;
+            }
+            #inventory-page input[type="text"],
+            #inventory-page input[type="number"],
+            #inventory-page input[type="file"], /* Updated for file input */
+            #inventory-page textarea,
+            #inventory-page button[type="submit"],
+            #proceed-to-payment-button,
+            #pay-now-button,
+            #print-receipt-button {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            main {
+                padding: 20px 10px;
+            }
+            nav ul {
+                flex-direction: column;
+            }
+            nav ul li {
+                margin: 5px 0;
+            }
+            .product-card .add-to-cart-controls {
+                flex-direction: column;
+            }
+            .product-card input[type="number"],
+            .product-card button {
+                width: 100%;
+                margin-right: 0;
+            }
+        }
+
+        /* Print Specific Styles for Receipt */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #receipt-print-area, #receipt-print-area * {
+                visibility: visible;
+            }
+            #receipt-print-area {
+                width: 58mm; /* Target width for receipt */
+                font-family: 'monospace', sans-serif;
+                font-size: 9px; /* Smaller font for receipt */
+                margin: 0;
+                padding: 5mm;
+                box-sizing: border-box;
+                position: absolute;
+                left: 0;
+                top: 0;
+            }
+            #receipt-print-area h4, #receipt-print-area h5 {
+                text-align: center;
+                margin: 2px 0;
+            }
+            #receipt-print-area .receipt-item {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 1px;
+            }
+            #receipt-print-area .receipt-item-qty-price {
+                font-size: 8px;
+            }
+            #receipt-print-area .receipt-total {
+                border-top: 1px dashed black;
+                padding-top: 3px;
+                margin-top: 5px;
+                display: flex;
+                justify-content: space-between;
+                font-weight: bold;
+            }
+            #receipt-print-area .receipt-footer {
+                text-align: center;
+                margin-top: 10px;
+                font-size: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Toko Online Sederhana</h1>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#" id="nav-home" class="active">Beranda</a></li>
+            <li><a href="#" id="nav-inventory">Kelola Barang</a></li>
+            <li><a href="#" id="nav-cart">Keranjang Belanja</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <!-- Home Page (Product) -->
+        <section id="home-page" class="page-section active">
+            <h2>Produk Kami</h2>
+            <div id="product-grid">
+                <!-- Product cards will be dynamically loaded here by JavaScript -->
+            </div>
+            <p id="no-products-message" class="empty-message" style="display: none;">Tidak ada produk yang tersedia saat ini.</p>
+        </section>
+
+        <!-- Manage Items (Inventory) Page -->
+        <section id="inventory-page" class="page-section">
+            <h2>Kelola Stok Barang</h2>
+            <form id="form-manage-inventory">
+                <div>
+                    <label for="inventory-nama-barang">Nama Barang:</label>
+                    <input type="text" id="inventory-nama-barang" placeholder="Nama produk" required>
+                </div>
+                <div>
+                    <label for="inventory-jumlah-barang">Jumlah Stok:</label>
+                    <input type="number" id="inventory-jumlah-barang" value="1" min="1" required>
+                </div>
+                <div>
+                    <label for="inventory-harga-barang">Harga (Rp):</label>
+                    <input type="number" id="inventory-harga-barang" value="0" min="0" required>
+                </div>
+                <div>
+                    <label for="inventory-image-upload">Upload Gambar Produk:</label>
+                    <input type="file" id="inventory-image-upload" accept="image/*">
+                    <img id="image-preview" src="https://placehold.co/100x70/CCCCCC/000?text=Preview" alt="Image Preview" style="max-width: 100px; max-height: 70px; margin-top: 10px; border-radius: 5px; display: block; border: 1px solid #ccc;">
+                </div>
+                <div>
+                    <label for="inventory-description">Deskripsi Produk:</label>
+                    <textarea id="inventory-description" placeholder="Deskripsi singkat produk..."></textarea>
+                </div>
+                <button type="submit">Tambah / Perbarui Stok</button>
+            </form>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Barang</th>
+                            <th>Stok</th>
+                            <th>Harga (Rp)</th>
+                            <th>Total Nilai (Rp)</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-data-barang">
+                        <!-- Inventory data will be loaded here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            <p id="empty-inventory-message" class="empty-message" style="display: none;">Inventaris kosong. Tambahkan barang baru!</p>
+        </section>
+
+        <!-- Shopping Cart Page -->
+        <section id="cart-page" class="page-section">
+            <h2>Keranjang Belanja Anda</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Barang</th>
+                            <th>Jumlah</th>
+                            <th>Harga Satuan (Rp)</th>
+                            <th>Subtotal (Rp)</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cart-data-barang">
+                        <!-- Cart data will be loaded here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            <p id="empty-cart-message" class="empty-message" style="display: none;">Keranjang belanja Anda kosong.</p>
+            
+            <div id="cart-total-section">
+                Total Belanja: <span id="total-belanja">Rp 0</span>
+            </div>
+            
+            <button id="proceed-to-payment-button" disabled>Lanjutkan ke Pembayaran</button>
+        </section>
+
+        <!-- Payment Page -->
+        <section id="payment-page" class="page-section">
+            <h2>Halaman Pembayaran</h2>
+            <div class="order-summary">
+                <h3>Detail Pesanan</h3>
+                <ul id="payment-order-details">
+                    <!-- Order items will be listed here -->
+                </ul>
+                <div class="order-total-display">
+                    Total Bayar: <span id="payment-total-amount">Rp 0</span>
+                </div>
+            </div>
+
+            <div class="payment-method-selection">
+                <h3>Pilih Jenis Pembayaran</h3>
+                <div>
+                    <input type="radio" id="payment-cash" name="payment-method" value="Tunai" checked>
+                    <label for="payment-cash">Tunai</label>
+                </div>
+                <div>
+                    <input type="radio" id="payment-transfer" name="payment-method" value="Transfer Bank">
+                    <label for="payment-transfer">Transfer Bank</label>
+                </div>
+                <div>
+                    <input type="radio" id="payment-qris" name="payment-method" value="QRIS">
+                    <label for="payment-qris">QRIS</label>
+                </div>
+            </div>
+
+            <button id="pay-now-button">Bayar Sekarang</button>
+            <button id="print-receipt-button" style="display: none;">Cetak Struk</button>
+        </section>
+
+        <!-- Checkout Success Page -->
+        <section id="checkout-success-page" class="page-section">
+            <h2>Pembelian Berhasil!</h2>
+            <p>Terima kasih telah berbelanja di toko kami. Pesanan Anda telah berhasil diproses.</p>
+            <button id="back-to-home-from-checkout">Kembali ke Beranda</button>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Toko Online Sederhana. Hak Cipta Dilindungi.</p>
+    </footer>
+
+    <!-- Hidden div for receipt printing -->
+    <div id="receipt-print-area" style="display: none;"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- Service Worker Registration ---
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+            } else {
+                console.warn('Service Workers are not supported in this browser.');
+            }
+
+            // --- DOM Elements ---
+            const navLinks = {
+                home: document.getElementById('nav-home'),
+                inventory: document.getElementById('nav-inventory'),
+                cart: document.getElementById('nav-cart')
+            };
+            const pageSections = {
+                home: document.getElementById('home-page'),
+                inventory: document.getElementById('inventory-page'),
+                cart: document.getElementById('cart-page'),
+                payment: document.getElementById('payment-page'), // New payment page
+                checkoutSuccess: document.getElementById('checkout-success-page')
+            };
+
+            // Home Page Elements
+            const productGrid = document.getElementById('product-grid');
+            const noProductsMessage = document.getElementById('no-products-message');
+
+            // Inventory Page Elements
+            const formManageInventory = document.getElementById('form-manage-inventory');
+            const inventoryNamaBarangInput = document.getElementById('inventory-nama-barang');
+            const inventoryJumlahBarangInput = document.getElementById('inventory-jumlah-barang');
+            const inventoryHargaBarangInput = document.getElementById('inventory-harga-barang');
+            const inventoryImageUploadInput = document.getElementById('inventory-image-upload'); // Changed from URL input
+            const imagePreview = document.getElementById('image-preview'); // New image preview element
+            const inventoryDescriptionInput = document.getElementById('inventory-description'); // New
+            const inventoryDataBarangTBody = document.getElementById('inventory-data-barang');
+            const emptyInventoryMessage = document.getElementById('empty-inventory-message');
+
+            // Cart Page Elements
+            const cartDataBarangTBody = document.getElementById('cart-data-barang');
+            const emptyCartMessage = document.getElementById('empty-cart-message');
+            const totalBelanjaSpan = document.getElementById('total-belanja');
+            const proceedToPaymentButton = document.getElementById('proceed-to-payment-button'); // Renamed
+
+            // Payment Page Elements
+            const paymentOrderDetailsList = document.getElementById('payment-order-details');
+            const paymentTotalAmountSpan = document.getElementById('payment-total-amount');
+            const paymentMethodRadios = document.querySelectorAll('input[name="payment-method"]');
+            const payNowButton = document.getElementById('pay-now-button');
+            const printReceiptButton = document.getElementById('print-receipt-button'); // New
+            const receiptPrintArea = document.getElementById('receipt-print-area'); // Hidden div for print content
+
+            // Checkout Success Page Elements
+            const backToHomeFromCheckoutButton = document.getElementById('back-to-home-from-checkout');
+
+            // --- Data State (Global Arrays) ---
+            let inventoryItems = []; // { id: string, name: string, stock: number, price: number, imageUrl: string, description: string }
+            let cartItems = [];      // { id: string, name: string, quantity: number, price: number }
+            let lastPurchasedItems = []; // To store items for receipt after cart is cleared
+
+            // --- Helper Functions ---
+
+            // Function to format currency to IDR
+            function formatCurrency(amount) {
+                return amount.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            }
+
+            // Function to save data to Local Storage
+            function saveData() {
+                localStorage.setItem('ecommerceInventory', JSON.stringify(inventoryItems));
+                localStorage.setItem('ecommerceCart', JSON.stringify(cartItems));
+            }
+
+            // Function to load data from Local Storage
+            function loadData() {
+                const storedInventory = localStorage.getItem('ecommerceInventory');
+                const storedCart = localStorage.getItem('ecommerceCart');
+                if (storedInventory) {
+                    inventoryItems = JSON.parse(storedInventory);
+                } else {
+                    // Initial dummy data if no inventory exists
+                    // Using placeholder URLs for dummy data to keep code readable.
+                    // Uploaded images will be stored as Base64.
+                    inventoryItems = [
+                        { id: 'prod001', name: 'Kemeja Pria Casual', stock: 50, price: 150000, imageUrl: 'https://placehold.co/300x200/ADD8E6/000?text=Kemeja', description: 'Kemeja pria dengan bahan katun lembut, nyaman dipakai sehari-hari.' },
+                        { id: 'prod002', name: 'Celana Jeans Wanita', stock: 30, price: 200000, imageUrl: 'https://placehold.co/300x200/87CEEB/000?text=Jeans', description: 'Celana jeans wanita model skinny fit, stretchable dan stylish.' },
+                        { id: 'prod003', name: 'Sepatu Sneakers', stock: 20, price: 350000, imageUrl: 'https://placehold.co/300x200/6A5ACD/FFF?text=Sneakers', description: 'Sepatu sneakers ringan dan nyaman untuk aktivitas sehari-hari.' },
+                        { id: 'prod004', name: 'Tas Ransel Laptop', stock: 15, price: 280000, imageUrl: 'https://placehold.co/300x200/4682B4/FFF?text=Tas', description: 'Tas ransel multifungsi dengan kompartemen laptop 15 inci.' }
+                    ];
+                }
+                if (storedCart) {
+                    cartItems = JSON.parse(storedCart);
+                }
+                // Ensure IDs are unique and consistent if not already
+                inventoryItems.forEach(item => {
+                    if (!item.id) item.id = generateUniqueId();
+                    // Add default image and description if missing from old data
+                    if (!item.imageUrl) item.imageUrl = 'https://placehold.co/300x200/CCCCCC/000?text=No+Image';
+                    if (!item.description) item.description = 'Tidak ada deskripsi produk.';
+                });
+                saveData(); // Save initial dummy data or update IDs
+            }
+
+            // Function to generate a simple unique ID
+            function generateUniqueId() {
+                return '_' + Math.random().toString(36).substr(2, 9);
+            }
+
+            // --- Navigation Logic ---
+            function showPage(pageId) {
+                // Hide all pages
+                for (const key in pageSections) {
+                    pageSections[key].classList.remove('active');
+                }
+                // Show the selected page
+                pageSections[pageId].classList.add('active');
+
+                // Update active navigation link
+                for (const key in navLinks) {
+                    navLinks[key].classList.remove('active');
+                }
+                if (navLinks[pageId]) {
+                    navLinks[pageId].classList.add('active');
+                }
+
+                // Re-render content for the active page
+                if (pageId === 'home') {
+                    renderProductCards();
+                } else if (pageId === 'inventory') {
+                    renderInventoryTable();
+                } else if (pageId === 'cart') {
+                    renderCartTable();
+                } else if (pageId === 'payment') {
+                    renderPaymentPage();
+                }
+            }
+
+            // --- Home Page (Product Display) Logic ---
+            function renderProductCards() {
+                productGrid.innerHTML = ''; // Clear existing cards
+                if (inventoryItems.length === 0) {
+                    noProductsMessage.style.display = 'block';
+                    return;
+                } else {
+                    noProductsMessage.style.display = 'none';
+                }
+
+                inventoryItems.forEach(item => {
+                    if (item.stock <= 0) return; // Don't show out of stock items on home page
+
+                    const card = document.createElement('div');
+                    card.classList.add('product-card');
+                    card.innerHTML = `
+                        <img src="${item.imageUrl}" alt="${item.name}" onerror="this.onerror=null;this.src='https://placehold.co/300x200/CCCCCC/000?text=Image+Error';" />
+                        <h3>${item.name}</h3>
+                        <p class="description">${item.description}</p>
+                        <p class="price">${formatCurrency(item.price)}</p>
+                        <p class="stock">Stok: ${item.stock}</p>
+                        <div class="add-to-cart-controls">
+                            <input type="number" class="add-to-cart-qty" value="1" min="1" max="${item.stock}">
+                            <button class="add-to-cart-btn" data-id="${item.id}">Tambah ke Keranjang</button>
+                        </div>
+                    `;
+                    productGrid.appendChild(card);
+                });
+
+                // Add event listeners for "Add to Cart" buttons
+                document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const productId = this.dataset.id;
+                        const quantityInput = this.previousElementSibling; // Get the input[type="number"]
+                        const quantity = parseInt(quantityInput.value, 10);
+
+                        const product = inventoryItems.find(p => p.id === productId);
+
+                        if (product && quantity > 0) {
+                            addToCart(product.id, product.name, product.price, quantity);
+                            // Reset quantity input to 1 after adding to cart
+                            quantityInput.value = 1;
+                        } else {
+                            alert('Jumlah tidak valid atau produk tidak ditemukan!');
+                        }
+                    });
+                });
+            }
+
+            // --- Inventory Page Logic ---
+            function renderInventoryTable() {
+                inventoryDataBarangTBody.innerHTML = '';
+                if (inventoryItems.length === 0) {
+                    emptyInventoryMessage.style.display = 'block';
+                    return;
+                } else {
+                    emptyInventoryMessage.style.display = 'none';
+                }
+
+                inventoryItems.forEach((item, index) => {
+                    const row = inventoryDataBarangTBody.insertRow();
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${item.name}</td>
+                        <td>${item.stock}</td>
+                        <td>${formatCurrency(item.price)}</td>
+                        <td>${formatCurrency(item.stock * item.price)}</td>
+                        <td class="aksi-tombol">
+                            <button class="delete-inventory-btn" data-id="${item.id}">Hapus</button>
+                        </td>
+                    `;
+                });
+
+                // Add event listeners for delete buttons
+                document.querySelectorAll('.delete-inventory-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const productId = this.dataset.id;
+                        if (confirm('Apakah Anda yakin ingin menghapus barang ini dari inventaris? Ini juga akan menghapus dari keranjang jika ada.')) {
+                            deleteInventoryItem(productId);
+                        }
+                    });
+                });
+            }
+
+            // Event listener for file input change to show preview
+            inventoryImageUploadInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imagePreview.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file); // Read file as Base64
+                } else {
+                    imagePreview.src = 'https://placehold.co/100x70/CCCCCC/000?text=Preview'; // Reset preview
+                }
+            });
+
+            // Add/Update Inventory Item
+            formManageInventory.addEventListener('submit', async function(event) { // Made async to handle FileReader
+                event.preventDefault();
+                const name = inventoryNamaBarangInput.value.trim();
+                const stock = parseInt(inventoryJumlahBarangInput.value, 10);
+                const price = parseInt(inventoryHargaBarangInput.value, 10);
+                const description = inventoryDescriptionInput.value.trim() || 'Tidak ada deskripsi produk.';
+
+                let imageUrl = 'https://placehold.co/300x200/CCCCCC/000?text=No+Image'; // Default placeholder
+
+                // Handle file upload
+                const file = inventoryImageUploadInput.files[0];
+                if (file) {
+                    // Convert file to Base64
+                    try {
+                        imageUrl = await new Promise((resolve, reject) => {
+                            const reader = new FileReader();
+                            reader.onload = () => resolve(reader.result);
+                            reader.onerror = error => reject(error);
+                            reader.readAsDataURL(file);
+                        });
+                        // Optional: Add a warning about localStorage size if image is very large
+                        if (imageUrl.length > 500 * 1024) { // Warn if > 500KB Base64 string
+                            alert("Peringatan: Ukuran gambar yang diunggah cukup besar. Menyimpan banyak gambar besar dapat memenuhi kapasitas penyimpanan browser (Local Storage).");
+                        }
+                    } catch (error) {
+                        console.error("Error reading file:", error);
+                        alert("Gagal membaca file gambar. Menggunakan gambar default.");
+                        imageUrl = 'https://placehold.co/300x200/CCCCCC/000?text=Error+Loading';
+                    }
+                } else {
+                    // If no new file is selected, and it's an existing item being updated,
+                    // retain its current image from inventoryItems.
+                    const existingItemByName = inventoryItems.find(item => item.name.toLowerCase() === name.toLowerCase());
+                    if (existingItemByName) {
+                        imageUrl = existingItemByName.imageUrl; // Retain existing image
+                    }
+                }
+
+
+                if (!name || isNaN(stock) || stock <= 0 || isNaN(price) || price < 0) {
+                    alert('Mohon isi semua kolom dengan benar. Stok harus positif, harga non-negatif.');
+                    return;
+                }
+
+                // Check if item already exists by name
+                const existingItem = inventoryItems.find(item => item.name.toLowerCase() === name.toLowerCase());
+
+                if (existingItem) {
+                    // If exists, update stock, price, image, and description
+                    existingItem.stock += stock; // Add to existing stock
+                    existingItem.price = price; // Update price to new input price
+                    existingItem.imageUrl = imageUrl; // Update image URL (now Base64)
+                    existingItem.description = description; // Update description
+                    alert(`Stok untuk "${name}" berhasil diperbarui. Stok baru: ${existingItem.stock}`);
+                } else {
+                    // If not exists, add new item
+                    const newItem = {
+                        id: generateUniqueId(),
+                        name: name,
+                        stock: stock,
+                        price: price,
+                        imageUrl: imageUrl, // Will be Base64 if uploaded, or default placeholder
+                        description: description
+                    };
+                    inventoryItems.push(newItem);
+                    alert(`"${name}" berhasil ditambahkan ke inventaris.`);
+                }
+
+                // Clear form
+                inventoryNamaBarangInput.value = '';
+                inventoryJumlahBarangInput.value = '1';
+                inventoryHargaBarangInput.value = '0';
+                inventoryImageUploadInput.value = ''; // Clear file input
+                imagePreview.src = 'https://placehold.co/100x70/CCCCCC/000?text=Preview'; // Reset preview
+                inventoryDescriptionInput.value = '';
+
+                renderInventoryTable();
+                renderProductCards(); // Update product display as well
+                saveData();
+            });
+
+            // Delete Inventory Item
+            function deleteInventoryItem(productId) {
+                inventoryItems = inventoryItems.filter(item => item.id !== productId);
+                // Also remove from cart if it was there
+                cartItems = cartItems.filter(item => item.id !== productId);
+                renderInventoryTable();
+                renderProductCards();
+                renderCartTable(); // Update cart as well
+                saveData();
+            }
+
+            // --- Cart Page Logic ---
+            function addToCart(productId, productName, productPrice, quantity) {
+                const inventoryProduct = inventoryItems.find(p => p.id === productId);
+
+                if (!inventoryProduct || inventoryProduct.stock < quantity) {
+                    alert(`Maaf, stok untuk "${productName}" tidak mencukupi. Stok tersedia: ${inventoryProduct ? inventoryProduct.stock : 0}`);
+                    return;
+                }
+
+                const existingCartItem = cartItems.find(item => item.id === productId);
+
+                if (existingCartItem) {
+                    // Check if adding more would exceed stock
+                    if (existingCartItem.quantity + quantity > inventoryProduct.stock) {
+                        alert(`Tidak dapat menambahkan ${quantity}x "${productName}". Hanya ${inventoryProduct.stock - existingCartItem.quantity} lagi yang tersedia.`);
+                        return;
+                    }
+                    existingCartItem.quantity += quantity;
+                } else {
+                    cartItems.push({
+                        id: productId,
+                        name: productName,
+                        quantity: quantity,
+                        price: productPrice
+                    });
+                }
+                alert(`"${productName}" (${quantity}x) ditambahkan ke keranjang!`);
+                renderCartTable();
+                saveData();
+            }
+
+            function renderCartTable() {
+                cartDataBarangTBody.innerHTML = '';
+                let totalBelanja = 0;
+
+                if (cartItems.length === 0) {
+                    emptyCartMessage.style.display = 'block';
+                    totalBelanjaSpan.textContent = formatCurrency(0);
+                    proceedToPaymentButton.disabled = true;
+                    return;
+                } else {
+                    emptyCartMessage.style.display = 'none';
+                    proceedToPaymentButton.disabled = false;
+                }
+
+                cartItems.forEach((item, index) => {
+                    const subtotal = item.quantity * item.price;
+                    totalBelanja += subtotal;
+
+                    const row = cartDataBarangTBody.insertRow();
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${item.name}</td>
+                        <td>
+                            <input type="number" class="cart-qty-input" value="${item.quantity}" min="1" data-id="${item.id}">
+                        </td>
+                        <td>${formatCurrency(item.price)}</td>
+                        <td>${formatCurrency(subtotal)}</td>
+                        <td class="aksi-tombol">
+                            <button class="remove-from-cart-btn" data-id="${item.id}">Hapus</button>
+                        </td>
+                    `;
+                });
+
+                totalBelanjaSpan.textContent = formatCurrency(totalBelanja);
+
+                // Add event listeners for quantity inputs in cart
+                document.querySelectorAll('.cart-qty-input').forEach(input => {
+                    input.addEventListener('change', function() {
+                        const productId = this.dataset.id;
+                        const newQuantity = parseInt(this.value, 10);
+                        updateCartItemQuantity(productId, newQuantity);
+                    });
+                });
+
+                // Add event listeners for remove from cart buttons
+                document.querySelectorAll('.remove-from-cart-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const productId = this.dataset.id;
+                        if (confirm('Apakah Anda yakin ingin menghapus barang ini dari keranjang?')) {
+                            removeFromCart(productId);
+                        }
+                    });
+                });
+            }
+
+            function updateCartItemQuantity(productId, newQuantity) {
+                const cartItem = cartItems.find(item => item.id === productId);
+                const inventoryProduct = inventoryItems.find(item => item.id === productId);
+
+                if (cartItem && inventoryProduct) {
+                    if (newQuantity <= 0) {
+                        removeFromCart(productId);
+                        return;
+                    }
+                    if (newQuantity > inventoryProduct.stock) {
+                        alert(`Stok untuk "${cartItem.name}" hanya tersedia ${inventoryProduct.stock}.`);
+                        cartItem.quantity = inventoryProduct.stock; // Set to max available stock
+                        renderCartTable(); // Re-render to reflect correction
+                        saveData();
+                        return;
+                    }
+                    cartItem.quantity = newQuantity;
+                    renderCartTable();
+                    saveData();
+                }
+            }
+
+            function removeFromCart(productId) {
+                cartItems = cartItems.filter(item => item.id !== productId);
+                renderCartTable();
+                saveData();
+            }
+
+            // --- Payment Page Logic ---
+            function renderPaymentPage() {
+                paymentOrderDetailsList.innerHTML = '';
+                let totalBayar = 0;
+
+                if (cartItems.length === 0) {
+                    // Should not happen if button is disabled, but for safety
+                    alert('Keranjang Anda kosong. Tidak dapat melanjutkan pembayaran.');
+                    showPage('home');
+                    return;
+                }
+
+                cartItems.forEach(item => {
+                    const subtotal = item.quantity * item.price;
+                    totalBayar += subtotal;
+
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `
+                        <span>${item.name} (${item.quantity}x)</span>
+                        <span>${formatCurrency(subtotal)}</span>
+                    `;
+                    paymentOrderDetailsList.appendChild(listItem);
+                });
+
+                paymentTotalAmountSpan.textContent = formatCurrency(totalBayar);
+                payNowButton.style.display = 'block'; // Ensure pay button is visible
+                printReceiptButton.style.display = 'none'; // Hide print button initially
+            }
+
+            // --- Checkout Flow ---
+            proceedToPaymentButton.addEventListener('click', function() {
+                if (cartItems.length === 0) {
+                    alert('Keranjang belanja Anda kosong!');
+                    return;
+                }
+                // First, check all stock availability before proceeding to payment
+                let stockCheckPassed = true;
+                for (const cartItem of cartItems) {
+                    const inventoryProduct = inventoryItems.find(item => item.id === cartItem.id);
+                    if (!inventoryProduct || inventoryProduct.stock < cartItem.quantity) {
+                        alert(`Stok "${cartItem.name}" tidak mencukupi. Tersedia: ${inventoryProduct ? inventoryProduct.stock : 0}, Anda ingin: ${cartItem.quantity}.`);
+                        stockCheckPassed = false;
+                        break;
+                    }
+                }
+
+                if (stockCheckPassed) {
+                    showPage('payment');
+                } else {
+                    renderCartTable(); // Re-render cart to show updated stock if any
+                }
+            });
+
+            payNowButton.addEventListener('click', function() {
+                const selectedPaymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
+                if (confirm(`Anda akan membayar dengan metode: ${selectedPaymentMethod}. Lanjutkan pembayaran?`)) {
+                    processPurchase();
+                }
+            });
+
+            function processPurchase() {
+                // Store a copy of cartItems before clearing for receipt printing
+                lastPurchasedItems = JSON.parse(JSON.stringify(cartItems));
+
+                // This is the actual stock reduction logic
+                for (const cartItem of cartItems) {
+                    const inventoryProduct = inventoryItems.find(item => item.id === cartItem.id);
+                    if (inventoryProduct) {
+                        inventoryProduct.stock -= cartItem.quantity;
+                    }
+                }
+
+                cartItems = []; // Clear the cart after successful purchase
+
+                alert('Pembayaran berhasil! Stok barang telah diperbarui.');
+                renderInventoryTable(); // Update inventory display
+                renderProductCards(); // Update product display (stock might change)
+                renderCartTable(); // Clear cart display
+                saveData(); // Save all changes
+
+                payNowButton.style.display = 'none'; // Hide pay button
+                printReceiptButton.style.display = 'block'; // Show print button
+                showPage('checkoutSuccess'); // Show success page
+            }
+
+            // --- Receipt Printing Logic ---
+            printReceiptButton.addEventListener('click', function() {
+                printReceipt();
+            });
+
+            function printReceipt() {
+                const totalBayar = paymentTotalAmountSpan.textContent; // This will be the total from the last payment page render
+                const paymentMethod = document.querySelector('input[name="payment-method"]:checked').value; // Get selected method
+                const dateTime = new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
+
+                let receiptContent = `
+                    <h4>TOKO ONLINE SEDERHANA</h4>
+                    <h5>Jl. Contoh No. 123, Kota Anda</h5>
+                    <hr style="border-top: 1px dashed black; margin: 5px 0;">
+                    <p style="margin: 2px 0;">Tanggal: ${dateTime}</p>
+                    <hr style="border-top: 1px dashed black; margin: 5px 0;">
+                    <p style="margin: 2px 0; font-weight: bold;">Detail Pesanan:</p>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                `;
+
+                // Use lastPurchasedItems for receipt content
+                lastPurchasedItems.forEach(item => {
+                    receiptContent += `
+                        <li class="receipt-item">
+                            <span>${item.name}</span>
+                            <span class="receipt-item-qty-price">${item.quantity} x ${formatCurrency(item.price)}</span>
+                        </li>
+                    `;
+                });
+
+                receiptContent += `
+                    </ul>
+                    <hr style="border-top: 1px dashed black; margin: 5px 0;">
+                    <div class="receipt-total">
+                        <span>TOTAL:</span>
+                        <span>${totalBayar}</span>
+                    </div>
+                    <p style="margin: 5px 0 2px 0;">Metode Pembayaran: ${paymentMethod}</p>
+                    <hr style="border-top: 1px dashed black; margin: 5px 0;">
+                    <p class="receipt-footer">Terima kasih telah berbelanja!</p>
+                `;
+
+                // Set content to the hidden print area
+                receiptPrintArea.innerHTML = receiptContent;
+
+                // Trigger browser print dialog for the specific area
+                const printWindow = window.open('', '_blank', 'width=58mm,height=40mm');
+                printWindow.document.write('<html><head><title>Struk Pembelian</title>');
+                printWindow.document.write('<style>');
+                // Copy the print-specific styles from the main stylesheet
+                printWindow.document.write(`
+                    body {
+                        font-family: 'monospace', sans-serif;
+                        font-size: 9px;
+                        margin: 0;
+                        padding: 5mm;
+                        box-sizing: border-box;
+                    }
+                    h4, h5 {
+                        text-align: center;
+                        margin: 2px 0;
+                    }
+                    hr {
+                        border: none;
+                        border-top: 1px dashed black;
+                        margin: 5px 0;
+                    }
+                    ul {
+                        list-style: none;
+                        padding: 0;
+                        margin: 0;
+                    }
+                    .receipt-item {
+                        display: flex;
+                        justify-content: space-between;
+                        margin-bottom: 1px;
+                    }
+                    .receipt-item-qty-price {
+                        font-size: 8px;
+                    }
+                    .receipt-total {
+                        border-top: 1px dashed black;
+                        padding-top: 3px;
+                        margin-top: 5px;
+                        display: flex;
+                        justify-content: space-between;
+                        font-weight: bold;
+                    }
+                    .receipt-footer {
+                        text-align: center;
+                        margin-top: 10px;
+                        font-size: 8px;
+                    }
+                `);
+                printWindow.document.write('</style></head><body>');
+                printWindow.document.write(receiptContent);
+                printWindow.document.write('</body></html>');
+                printWindow.document.close();
+                printWindow.focus();
+                printWindow.print();
+                // printWindow.close(); // Close after printing, but sometimes needs user interaction
+            }
+
+
+            // --- Checkout Success Page Logic ---
+            backToHomeFromCheckoutButton.addEventListener('click', function() {
+                showPage('home');
+            });
+
+            // --- Initial Load and Event Listeners ---
+            loadData(); // Load data from local storage
+            showPage('home'); // Show home page by default
+
+            // Navigation link event listeners
+            navLinks.home.addEventListener('click', (e) => { e.preventDefault(); showPage('home'); });
+            navLinks.inventory.addEventListener('click', (e) => { e.preventDefault(); showPage('inventory'); });
+            navLinks.cart.addEventListener('click', (e) => { e.preventDefault(); showPage('cart'); });
+        });
+    </script>
+</body>
+</html>
