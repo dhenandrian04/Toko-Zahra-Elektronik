@@ -7,8 +7,7 @@
     <!-- Google Fonts: Poppins for a modern look -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     
-    <!-- PWA Manifest Link -->
-    <link rel="manifest" href="/manifest.json">
+    <!-- PWA Manifest Link (Dihapus karena menyebabkan masalah di lingkungan ini) -->
     <style>
         /* Global Styles */
         body {
@@ -573,7 +572,8 @@
 
         @media (max-width: 480px) {
             main {
-                padding: 20px 10px;
+                /* Adjusted padding for very small screens for better edge spacing */
+                padding: 20px 15px; 
             }
             nav ul {
                 flex-direction: column;
@@ -788,19 +788,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // --- Service Worker Registration ---
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then(registration => {
-                        console.log('Service Worker registered with scope:', registration.scope);
-                    })
-                    .catch(error => {
-                        console.error('Service Worker registration failed:', error);
-                    });
-            } else {
-                console.warn('Service Workers are not supported in this browser.');
-            }
-
             // --- DOM Elements ---
             const navLinks = {
                 home: document.getElementById('nav-home'),
